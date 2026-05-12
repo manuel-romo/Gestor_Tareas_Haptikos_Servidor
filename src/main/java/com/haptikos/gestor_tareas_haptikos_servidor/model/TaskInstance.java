@@ -2,6 +2,9 @@ package com.haptikos.gestor_tareas_haptikos_servidor.model;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "task_instances")
 public class TaskInstance {
@@ -10,11 +13,18 @@ public class TaskInstance {
 
     private Long dueDate;
     private String state;
-    private Long pausedUntil;
 
     @ManyToOne
     @JoinColumn(name = "task_id")
     private Task task;
+
+    @ManyToMany
+    @JoinTable(
+            name = "task_instance_member_join",
+            joinColumns = @JoinColumn(name = "task_instance_id"),
+            inverseJoinColumns = @JoinColumn(name = "member_id")
+    )
+    private List<Member> members = new ArrayList<>();
 
     public Task getTask() {
         return task;
@@ -22,14 +32,6 @@ public class TaskInstance {
 
     public void setTask(Task task) {
         this.task = task;
-    }
-
-    public Long getPausedUntil() {
-        return pausedUntil;
-    }
-
-    public void setPausedUntil(Long pausedUntil) {
-        this.pausedUntil = pausedUntil;
     }
 
     public String getState() {
@@ -55,4 +57,8 @@ public class TaskInstance {
     public void setId(String id) {
         this.id = id;
     }
+
+    public List<Member> getMembers() { return members; }
+
+    public void setMembers(List<Member> members) { this.members = members; }
 }

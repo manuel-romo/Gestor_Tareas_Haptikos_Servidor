@@ -18,10 +18,12 @@ public class Task {
     private String recurrence;
     private String workMode;
     private int lastMemberIndex;
+    private Long pausedUntil;
 
     @ManyToOne
     @JoinColumn(name = "room_id")
     private Room room;
+    private String homeId;
 
     @ManyToMany
     @JoinTable(
@@ -118,4 +120,13 @@ public class Task {
     public void setMembers(List<Member> members) {
         this.members = members;
     }
+
+    public Long getPausedUntil() { return pausedUntil; }
+
+    public void setPausedUntil(Long pausedUntil) { this.pausedUntil = pausedUntil; }
+
+    public String getHomeId() { return homeId; }
+
+    public void setHomeId(String homeId) { this.homeId = homeId; }
+
 }

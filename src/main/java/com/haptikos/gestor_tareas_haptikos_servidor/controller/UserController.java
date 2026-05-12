@@ -1,9 +1,11 @@
 package com.haptikos.gestor_tareas_haptikos_servidor.controller;
 
+import com.haptikos.gestor_tareas_haptikos_servidor.dto.HomeSyncDto;
 import com.haptikos.gestor_tareas_haptikos_servidor.dto.UpdateUserRequest;
 import com.haptikos.gestor_tareas_haptikos_servidor.model.User;
 import com.haptikos.gestor_tareas_haptikos_servidor.repository.UserRepository;
 import com.haptikos.gestor_tareas_haptikos_servidor.service.FileService;
+import com.haptikos.gestor_tareas_haptikos_servidor.service.HomeService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -19,11 +22,13 @@ import java.util.Optional;
 public class UserController {
 
     private final FileService fileService;
+    private final HomeService homeService;
     private final UserRepository userRepository;
 
-    public UserController(FileService fileService, UserRepository userRepository) {
+    public UserController(FileService fileService, UserRepository userRepository, HomeService homeService) {
         this.fileService = fileService;
         this.userRepository = userRepository;
+        this.homeService = homeService;
     }
 
     @PostMapping("/{userId}/profile-picture")
@@ -94,6 +99,18 @@ public class UserController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    @PatchMapping("/{userId}/fcm-token")
+    public ResponseEntity<Void> updateFcmToken(
+            @PathVariable String userId,
+            @RequestBody Map<String, String> body) {
+        String token = body.get("fcmToken");
+        userRepository.findById(userId).ifPresent(user -> {
+            user.setFcmToken(token);
+            userRepository.save(user);
+        });
+        return ResponseEntity.ok().build();
     }
 
 }

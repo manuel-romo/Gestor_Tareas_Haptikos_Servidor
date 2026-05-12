@@ -18,6 +18,7 @@ public class User {
     private boolean notifyTaskReminders = true;
     private boolean notifyTaskCompleted = true;
     private boolean notifyNewMembers = true;
+    private String fcmToken;
 
     // Getters y Setters
     public String getId() { return id; }
@@ -52,4 +53,8 @@ public class User {
     public boolean isNotifyNewMembers() { return notifyNewMembers; }
 
     public void setNotifyNewMembers(boolean notifyNewMembers) { this.notifyNewMembers = notifyNewMembers; }
+
+    public String getFcmToken() { return fcmToken; }
+
+    public void setFcmToken(String fcmToken) { this.fcmToken = fcmToken; }
 }

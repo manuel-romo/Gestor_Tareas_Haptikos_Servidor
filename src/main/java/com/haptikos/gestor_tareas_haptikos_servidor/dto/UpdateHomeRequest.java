@@ -9,6 +9,7 @@ public class UpdateHomeRequest {
     private Boolean notifyNewMembers;
     private Boolean notifyAllMembers;
     private Boolean forceSettings;
+    private String editPermission;
 
     public String getName() {
         return name;
@@ -73,4 +74,9 @@ public class UpdateHomeRequest {
     public void setForceSettings(Boolean forceSettings) {
         this.forceSettings = forceSettings;
     }
+
+    public String getEditPermission() { return editPermission; }
+
+    public void setEditPermission(String editPermission) { this.editPermission = editPermission; }
+
 }

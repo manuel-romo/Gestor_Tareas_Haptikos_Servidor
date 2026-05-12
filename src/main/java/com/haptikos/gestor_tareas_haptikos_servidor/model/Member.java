@@ -7,7 +7,7 @@ import jakarta.persistence.*;
 public class Member {
     @Id
     private String id;
-
+    private String userId;
     private String name;
     private String lastName;
     private String colorHex;
@@ -18,6 +18,10 @@ public class Member {
     @JoinColumn(name = "home_id")
     private Home home;
 
+    private boolean notifyTaskReminders = true;
+    private boolean notifyTaskCompleted = true;
+    private boolean notifyNewMembers = true;
+
     public String getId() {
         return id;
     }
@@ -25,6 +29,10 @@ public class Member {
     public void setId(String id) {
         this.id = id;
     }
+
+    public String getUserId() { return userId; }
+
+    public void setUserId(String userId) { this.userId = userId; }
 
     public Home getHome() {
         return home;
@@ -69,4 +77,16 @@ public class Member {
     public String getStatus() { return status; }
 
     public void setStatus(String status) { this.status = status; }
+
+    public boolean isNotifyTaskReminders() { return notifyTaskReminders; }
+
+    public void setNotifyTaskReminders(boolean notifyTaskReminders) { this.notifyTaskReminders = notifyTaskReminders; }
+
+    public boolean isNotifyTaskCompleted() { return notifyTaskCompleted; }
+
+    public void setNotifyTaskCompleted(boolean notifyTaskCompleted) { this.notifyTaskCompleted = notifyTaskCompleted; }
+
+    public boolean isNotifyNewMembers() { return notifyNewMembers; }
+
+    public void setNotifyNewMembers(boolean notifyNewMembers) { this.notifyNewMembers = notifyNewMembers; }
 }
