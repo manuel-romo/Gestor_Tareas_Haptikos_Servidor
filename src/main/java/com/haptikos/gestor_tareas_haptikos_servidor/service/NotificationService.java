@@ -73,8 +73,11 @@ public class NotificationService {
         });
     }
 
-    public void notifyHomeMembers(Home home, String title, String body, String type) {
+    public void notifyHomeMembers(Home home, String title, String body, String type, String excludeUserId) {
         for (Member member : home.getMembers()) {
+            if (member.getUserId().equals(excludeUserId)) {
+                continue;
+            }
             sendNotificationToMember(member, home, title, body, type);
         }
     }
@@ -97,12 +100,8 @@ public class NotificationService {
         // Enviar push
         Message message = Message.builder()
                 .setToken(user.getFcmToken())
-                .setNotification(
-                        com.google.firebase.messaging.Notification.builder()
-                                .setTitle(title)
-                                .setBody(body)
-                                .build()
-                )
+                .putData("title", title)
+                .putData("body", body)
                 .putData("type", type)
                 .putData("homeId", home.getId())
                 .build();
@@ -134,4 +133,42 @@ public class NotificationService {
             default -> false;
         };
     }
+
+    public void sendSilentSyncToHome(Home home, String type, String excludeUserId) {
+        System.out.println("[FCM] Iniciando envío tipo=" + type + " homeId=" + home.getId() + " miembros=" + home.getMembers().size());
+
+        for (Member member : home.getMembers()) {
+            if (member.getUserId().equals(excludeUserId)) {
+                System.out.println("[FCM] Excluido userId=" + member.getUserId());
+                continue;
+            }
+
+            User user = userRepository.findById(member.getUserId()).orElse(null);
+            if (user == null) {
+                System.out.println("[FCM] Usuario no encontrado userId=" + member.getUserId());
+                continue;
+            }
+            if (user.getFcmToken() == null) {
+                System.out.println("[FCM] Sin token userId=" + member.getUserId());
+                continue;
+            }
+
+            System.out.println("[FCM] Enviando a userId=" + member.getUserId() + " token=" + user.getFcmToken().substring(0, 15) + "...");
+
+            Message message = Message.builder()
+                    .setToken(user.getFcmToken())
+                    .putData("type", type)
+                    .putData("homeId", home.getId())
+                    .build();
+
+            try {
+                String result = FirebaseMessaging.getInstance().send(message);
+                System.out.println("[FCM] OK: " + result);
+            } catch (FirebaseMessagingException e) {
+                System.out.println("[FCM] Error: " + e.getErrorCode() + " - " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
+
 }

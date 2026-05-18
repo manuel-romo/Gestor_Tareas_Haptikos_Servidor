@@ -15,6 +15,8 @@ public class CreateTaskRequest {
     private String roomId;
     private List<String> memberIds;
     private String homeId;
+    private boolean predetermined;
+    private String userId;
 
     public String getId() {
         return id;
@@ -110,5 +112,21 @@ public class CreateTaskRequest {
 
     public void setHomeId(String homeId) {
         this.homeId = homeId;
+    }
+
+    public boolean isPredetermined() {
+        return predetermined;
+    }
+
+    public void setPredetermined(boolean predetermined) {
+        this.predetermined = predetermined;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }

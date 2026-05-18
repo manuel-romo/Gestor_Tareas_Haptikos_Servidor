@@ -6,8 +6,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface TaskRepository extends JpaRepository<Task, String> {
     @Query("SELECT COUNT(t) FROM Task t WHERE t.room.home.id = :homeId")
     long countByHomeId(@Param("homeId") String homeId);
+    List<Task> findByHomeId(String homeId);
 }

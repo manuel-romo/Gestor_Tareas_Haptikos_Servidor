@@ -128,14 +128,24 @@ public class HomeService {
             home.setForceSettings(request.getForceSettings());
         }
 
-        return homeRepository.save(home);
+        Home updatedHome = homeRepository.save(home);
+
+        notificationService.sendSilentSyncToHome(updatedHome, "SYNC_HOME", "");
+
+        return updatedHome;
     }
 
 
     private String generateUniqueCode(String homeName) {
-        String prefix = homeName.length() >= 4
-                ? homeName.substring(0, 4).toUpperCase()
-                : (homeName + "HOME").substring(0, 4).toUpperCase();
+        String cleanedName = homeName.replaceAll("\\s+", "");
+
+        if (cleanedName.isEmpty()) {
+            cleanedName = "HOME";
+        }
+
+        String prefix = cleanedName.length() >= 4
+                ? cleanedName.substring(0, 4).toUpperCase()
+                : (cleanedName + "HOME").substring(0, 4).toUpperCase();
 
         String code;
         do {
@@ -158,7 +168,10 @@ public class HomeService {
 
     @Transactional
     public void deleteHome(String homeId) {
-          homeRepository.deleteById(homeId);
+        homeRepository.findById(homeId).ifPresent(home -> {
+            notificationService.sendSilentSyncToHome(home, "HOME_DELETED", "");
+            homeRepository.deleteById(homeId);
+        });
     }
 
     @Transactional
@@ -166,7 +179,12 @@ public class HomeService {
         Home home = homeRepository.findById(homeId)
                 .orElseThrow(() -> new Exception("Hogar no encontrado"));
         home.setInviteCode(generateUniqueCode(home.getName()));
-        return homeRepository.save(home);
+
+        Home updatedHome = homeRepository.save(home);
+
+        notificationService.sendSilentSyncToHome(updatedHome, "SYNC_HOME", "");
+
+        return updatedHome;
     }
 
     public HomePreviewDto findHomeByCode(String inviteCode, String userId) throws Exception {
@@ -201,6 +219,8 @@ public class HomeService {
         Home home = homeRepository.findByInviteCode(inviteCode)
                 .orElseThrow(() -> new Exception("Hogar no encontrado"));
 
+        System.out.println("[JOIN] Hogar encontrado: " + home.getId() + " miembros actuales: " + home.getMembers().size());
+
         boolean alreadyMember = home.getMembers().stream()
                 .anyMatch(m -> userId.equals(m.getUserId()));
         if (alreadyMember) throw new Exception("Ya eres miembro de este hogar");
@@ -222,12 +242,18 @@ public class HomeService {
         home.getMembers().add(member);
         homeRepository.save(home);
 
+        System.out.println("[JOIN] Miembro guardado userId=" + userId + " miembros ahora: " + home.getMembers().size());
+        System.out.println("[JOIN] Llamando notifyHomeMembers, excluyendo userId=" + userId);
+
         notificationService.notifyHomeMembers(
                 home,
                 "Nuevo miembro",
                 name + " se unió al hogar",
-                "NEW_MEMBER"
+                "NEW_MEMBER",
+                userId
         );
+
+        System.out.println("[JOIN] notifyHomeMembers completado");
 
         return member;
     }
@@ -268,7 +294,23 @@ public class HomeService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public void leaveHome(String homeId, String userId) {
+        // Se busca el hogar para obtener a los demás miembros
+        Home home = homeRepository.findById(homeId)
+                .orElseThrow(() -> new RuntimeException("Hogar no encontrado"));
 
+        Member member = memberRepository.findByHomeIdAndUserId(homeId, userId)
+                .orElseThrow(() -> new RuntimeException("El usuario no es miembro de este hogar"));
+
+        if ("CREATOR".equals(member.getRole())) {
+            throw new RuntimeException("El creador no puede abandonar el hogar directamente.");
+        }
+
+        memberRepository.delete(member);
+
+        notificationService.sendSilentSyncToHome(home, "SYNC_MEMBERS", userId);
+    }
 
 
 }

@@ -54,6 +54,7 @@ public class UserController {
             // Se devuelve la url
             Map<String, String> response = new HashMap<>();
             response.put("profilePicUrl", secureUrl);
+
             return ResponseEntity.ok(response);
 
         } catch (IOException e) {
@@ -93,6 +94,7 @@ public class UserController {
 
             Map<String, String> response = new HashMap<>();
             response.put("message", "Usuario actualizado correctamente");
+
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {

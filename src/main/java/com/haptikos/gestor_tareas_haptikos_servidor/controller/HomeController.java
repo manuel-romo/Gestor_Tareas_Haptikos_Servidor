@@ -77,7 +77,7 @@ public class HomeController {
     @GetMapping("/by-code/{inviteCode}")
     public ResponseEntity<?> findByCode(
             @PathVariable String inviteCode,
-            @RequestParam String userId) { // ← nuevo
+            @RequestParam String userId) {
         try {
             HomePreviewDto preview = homeService.findHomeByCode(inviteCode, userId);
             return ResponseEntity.ok(preview);
@@ -112,6 +112,17 @@ public class HomeController {
         }
     }
 
+    @DeleteMapping("/{homeId}/members/{userId}")
+    public ResponseEntity<?> leaveHome(
+            @PathVariable String homeId,
+            @PathVariable String userId) {
+        try {
+            homeService.leaveHome(homeId, userId);
 
+            return ResponseEntity.ok(Map.of("message", "Abandonaste el hogar con éxito"));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
+        }
+    }
 
 }

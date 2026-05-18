@@ -2,13 +2,12 @@ package com.haptikos.gestor_tareas_haptikos_servidor.dto;
 
 import java.util.List;
 
-public class CreateTaskInstanceRequest {
+public class TaskInstanceNetworkDto {
     private String id;
     private String taskId;
     private Long dueDate;
     private String state;
     private List<String> memberIds;
-    private String userId;
 
     public String getId() {
         return id;
@@ -48,13 +47,5 @@ public class CreateTaskInstanceRequest {
 
     public void setMemberIds(List<String> memberIds) {
         this.memberIds = memberIds;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
     }
 }

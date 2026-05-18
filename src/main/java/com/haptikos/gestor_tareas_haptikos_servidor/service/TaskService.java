@@ -1,9 +1,7 @@
 package com.haptikos.gestor_tareas_haptikos_servidor.service;
 
 import com.haptikos.gestor_tareas_haptikos_servidor.controller.TaskController;
-import com.haptikos.gestor_tareas_haptikos_servidor.dto.CreateTaskInstanceRequest;
-import com.haptikos.gestor_tareas_haptikos_servidor.dto.CreateTaskRequest;
-import com.haptikos.gestor_tareas_haptikos_servidor.dto.TaskResponse;
+import com.haptikos.gestor_tareas_haptikos_servidor.dto.*;
 import com.haptikos.gestor_tareas_haptikos_servidor.model.Home;
 import com.haptikos.gestor_tareas_haptikos_servidor.model.Member;
 import com.haptikos.gestor_tareas_haptikos_servidor.model.Task;
@@ -13,6 +11,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskService {
@@ -51,6 +51,7 @@ public class TaskService {
         task.setWorkMode(request.getWorkMode());
         task.setLastMemberIndex(request.getLastMemberIndex());
         task.setHomeId(request.getHomeId());
+        task.setPredetermined(request.isPredetermined());
 
         if (request.getRoomId() != null) {
             roomRepository.findById(request.getRoomId()).ifPresent(task::setRoom);
@@ -63,7 +64,43 @@ public class TaskService {
 
         Task savedTask = taskRepository.save(task);
 
+        homeRepository.findById(request.getHomeId()).ifPresent(home -> {
+            notificationService.sendSilentSyncToHome(home, "SYNC_TASKS", request.getUserId() != null ? request.getUserId() : "");
+        });
+
         return new TaskResponse(savedTask.getId(), savedTask.getTitle());
+    }
+
+    @Transactional
+    public void updateTask(String taskId, UpdateTaskRequest request) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Tarea no encontrada"));
+
+        task.setTitle(request.getTitle());
+        task.setDescription(request.getDescription());
+        task.setPoints(request.getPoints());
+        task.setPriority(request.getPriority());
+        task.setSuggestedDay(request.getSuggestedDay());
+        task.setRecurrence(request.getRecurrence());
+        task.setWorkMode(request.getWorkMode());
+        task.setPausedUntil(request.getPausedUntil());
+
+        if (request.getRoomId() != null) {
+            roomRepository.findById(request.getRoomId()).ifPresent(task::setRoom);
+        } else {
+            task.setRoom(null);
+        }
+
+        if (request.getMemberIds() != null) {
+            List<Member> members = memberRepository.findAllById(request.getMemberIds());
+            task.setMembers(members);
+        }
+
+        taskRepository.save(task);
+
+        homeRepository.findById(task.getHomeId()).ifPresent(home ->
+                notificationService.sendSilentSyncToHome(home, "SYNC_TASKS", "")
+        );
     }
 
     @Transactional
@@ -82,10 +119,17 @@ public class TaskService {
         }
 
         taskInstanceRepository.save(instance);
+
+        taskRepository.findById(request.getTaskId()).ifPresent(task -> {
+            homeRepository.findById(task.getHomeId()).ifPresent(home -> {
+                notificationService.sendSilentSyncToHome(home, "SYNC_TASKS",
+                        request.getUserId() != null ? request.getUserId() : "");
+            });
+        });
     }
 
     @Transactional
-    public void completeInstance(String instanceId) {
+    public void completeInstance(String instanceId, String userId) {
         TaskInstance instance = taskInstanceRepository.findById(instanceId)
                 .orElseThrow(() -> new RuntimeException("Instancia no encontrada"));
 
@@ -98,12 +142,78 @@ public class TaskService {
         Home home = homeRepository.findById(task.getHomeId()).orElse(null);
         if (home == null) return;
 
-        // Notificar a todos los miembros del hogar
+        notificationService.sendSilentSyncToHome(home, "SYNC_TASKS", "");
+
         notificationService.notifyHomeMembers(
                 home,
                 "Tarea completada",
                 "\"" + task.getTitle() + "\" fue marcada como completada",
-                "TASK_COMPLETED"
+                "TASK_COMPLETED",
+                userId
         );
     }
+
+
+    public List<TaskNetworkDto> getTasksByHome(String homeId) {
+        List<Task> tasks = taskRepository.findByHomeId(homeId);
+
+        // Una sola query para todas las instancias del hogar
+        List<TaskInstance> allInstances = taskInstanceRepository.findByTask_HomeId(homeId);
+        Map<String, List<TaskInstance>> instancesByTaskId = allInstances.stream()
+                .collect(Collectors.groupingBy(i -> i.getTask().getId()));
+
+        return tasks.stream().map(task -> {
+            TaskNetworkDto dto = new TaskNetworkDto();
+            dto.setId(task.getId());
+            dto.setTitle(task.getTitle());
+            dto.setDescription(task.getDescription());
+            dto.setPoints(task.getPoints());
+            dto.setPriority(task.getPriority());
+            dto.setSuggestedDay(task.getSuggestedDay());
+            dto.setRecurrence(task.getRecurrence());
+            dto.setWorkMode(task.getWorkMode());
+            dto.setLastMemberIndex(task.getLastMemberIndex());
+            dto.setRoomId(task.getRoom() != null ? task.getRoom().getId() : null);
+            dto.setHomeId(task.getHomeId());
+            dto.setPredetermined(Boolean.TRUE.equals(task.getPredetermined()));
+            dto.setMemberIds(task.getMembers().stream()
+                    .map(Member::getId)
+                    .collect(Collectors.toList()));
+
+            List<TaskInstanceNetworkDto> instanceDtos = instancesByTaskId
+                    .getOrDefault(task.getId(), List.of())
+                    .stream()
+                    .map(inst -> {
+                        TaskInstanceNetworkDto iDto = new TaskInstanceNetworkDto();
+                        iDto.setId(inst.getId());
+                        iDto.setDueDate(inst.getDueDate());
+                        iDto.setState(inst.getState());
+                        iDto.setTaskId(task.getId());
+                        iDto.setMemberIds(inst.getMembers().stream()
+                                .map(Member::getId)
+                                .collect(Collectors.toList()));
+                        return iDto;
+                    }).collect(Collectors.toList());
+
+            dto.setInstances(instanceDtos);
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void deleteTask(String taskId, String userId) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Tarea no encontrada"));
+
+        String homeId = task.getHomeId();
+
+        taskInstanceRepository.deleteByTaskId(taskId);
+
+        taskRepository.delete(task);
+
+        homeRepository.findById(homeId).ifPresent(home ->
+                notificationService.sendSilentSyncToHome(home, "SYNC_TASKS", userId)
+        );
+    }
+
 }

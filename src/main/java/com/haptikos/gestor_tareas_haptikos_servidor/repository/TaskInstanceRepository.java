@@ -14,4 +14,8 @@ public interface TaskInstanceRepository extends JpaRepository<TaskInstance, Stri
 
     List<TaskInstance> findByStateAndDueDateBetween(String state, long from, long to);
 
+    List<TaskInstance> findByTask_HomeId(String homeId);
+
+    void deleteByTaskId(String taskId);
+
 }

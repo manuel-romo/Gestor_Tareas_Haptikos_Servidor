@@ -19,6 +19,7 @@ public class Task {
     private String workMode;
     private int lastMemberIndex;
     private Long pausedUntil;
+    private Boolean isPredetermined;
 
     @ManyToOne
     @JoinColumn(name = "room_id")
@@ -129,4 +130,11 @@ public class Task {
 
     public void setHomeId(String homeId) { this.homeId = homeId; }
 
+    public Boolean getPredetermined() {
+        return isPredetermined;
+    }
+
+    public void setPredetermined(Boolean predetermined) {
+        isPredetermined = predetermined;
+    }
 }
