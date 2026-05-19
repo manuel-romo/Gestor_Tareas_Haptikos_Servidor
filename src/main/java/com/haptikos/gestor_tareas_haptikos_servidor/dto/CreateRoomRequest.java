@@ -6,6 +6,7 @@ public class CreateRoomRequest {
     private String icon;
     private String colorHex;
     private String homeId;
+    private String userId;
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
@@ -21,4 +22,12 @@ public class CreateRoomRequest {
 
     public String getHomeId() { return homeId; }
     public void setHomeId(String homeId) { this.homeId = homeId; }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 }

@@ -33,8 +33,6 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("error", "El correo ya está registrado"));
         }
 
-        user.setId(java.util.UUID.randomUUID().toString());
-
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         String token = jwtService.generateToken(user.getEmail());

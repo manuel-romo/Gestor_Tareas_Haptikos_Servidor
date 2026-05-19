@@ -6,6 +6,7 @@ public class CreateHomeRequest {
     private String id;
     private String name;
     private String description;
+    private String creatorMemberId;
     private boolean isPrivate;
     private String creatorId;
     private String creatorName;
@@ -85,4 +86,9 @@ public class CreateHomeRequest {
     public void setInvitedUsers(List<InvitedUserDto> invitedUsers) {
         this.invitedUsers = invitedUsers;
     }
+
+    public String getCreatorMemberId() { return creatorMemberId; }
+
+    public void setCreatorMemberId(String creatorMemberId) { this.creatorMemberId = creatorMemberId; }
+
 }

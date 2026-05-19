@@ -27,6 +27,8 @@ public class Home {
     private boolean notifyAllMembers = true;
     private boolean forceSettings = false;
 
+    private String editPermission = "CREATOR_ONLY";
+
     // Relación Una casa tiene muchos miembros
     @OneToMany(mappedBy = "home", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Member> members;
@@ -114,4 +116,9 @@ public class Home {
     public boolean isForceSettings() { return forceSettings; }
 
     public void setForceSettings(boolean forceSettings) { this.forceSettings = forceSettings; }
+
+    public String getEditPermission() { return editPermission; }
+
+    public void setEditPermission(String editPermission) { this.editPermission = editPermission; }
+
 }

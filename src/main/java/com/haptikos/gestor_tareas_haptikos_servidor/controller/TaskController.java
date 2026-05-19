@@ -1,7 +1,6 @@
 package com.haptikos.gestor_tareas_haptikos_servidor.controller;
 
-import com.haptikos.gestor_tareas_haptikos_servidor.dto.CreateTaskRequest;
-import com.haptikos.gestor_tareas_haptikos_servidor.dto.TaskResponse;
+import com.haptikos.gestor_tareas_haptikos_servidor.dto.*;
 import com.haptikos.gestor_tareas_haptikos_servidor.model.Member;
 import com.haptikos.gestor_tareas_haptikos_servidor.model.Task;
 import com.haptikos.gestor_tareas_haptikos_servidor.repository.MemberRepository;
@@ -9,10 +8,7 @@ import com.haptikos.gestor_tareas_haptikos_servidor.repository.RoomRepository;
 import com.haptikos.gestor_tareas_haptikos_servidor.repository.TaskRepository;
 import com.haptikos.gestor_tareas_haptikos_servidor.service.TaskService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -31,4 +27,50 @@ public class TaskController {
         TaskResponse response = taskService.createTask(request);
         return ResponseEntity.ok(response);
     }
+
+    @PutMapping("/{taskId}")
+    public ResponseEntity<Void> updateTask(
+            @PathVariable String taskId,
+            @RequestBody UpdateTaskRequest request) {
+        try {
+            taskService.updateTask(taskId, request);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/instances")
+    public ResponseEntity<Void> createInstance(@RequestBody CreateTaskInstanceRequest request) {
+        taskService.createInstance(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{instanceId}/complete")
+    public ResponseEntity<Void> completeInstance(
+            @PathVariable String instanceId,
+            @RequestParam String userId,
+            @RequestParam(required = false) Long completedAt) {
+        taskService.completeInstance(instanceId, userId, completedAt);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/home/{homeId}")
+    public ResponseEntity<List<TaskNetworkDto>> getTasksByHome(@PathVariable String homeId) {
+        List<TaskNetworkDto> tasks = taskService.getTasksByHome(homeId);
+        return ResponseEntity.ok(tasks);
+    }
+
+    @DeleteMapping("/{taskId}")
+    public ResponseEntity<Void> deleteTask(
+            @PathVariable String taskId,
+            @RequestParam String userId) {
+        try {
+            taskService.deleteTask(taskId, userId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 }

@@ -2,6 +2,7 @@ package com.haptikos.gestor_tareas_haptikos_servidor.service;
 
 import com.haptikos.gestor_tareas_haptikos_servidor.dto.CreateRoomRequest;
 import com.haptikos.gestor_tareas_haptikos_servidor.dto.UpdateRoomRequest;
+import com.haptikos.gestor_tareas_haptikos_servidor.exception.RoomNotFoundException;
 import com.haptikos.gestor_tareas_haptikos_servidor.model.Home;
 import com.haptikos.gestor_tareas_haptikos_servidor.model.Room;
 import com.haptikos.gestor_tareas_haptikos_servidor.repository.HomeRepository;
@@ -9,15 +10,19 @@ import com.haptikos.gestor_tareas_haptikos_servidor.repository.RoomRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class RoomService {
 
     private final RoomRepository roomRepository;
     private final HomeRepository homeRepository;
+    private final NotificationService notificationService;
 
-    public RoomService(RoomRepository roomRepository, HomeRepository homeRepository) {
+    public RoomService(RoomRepository roomRepository, HomeRepository homeRepository, NotificationService notificationService) {
         this.roomRepository = roomRepository;
         this.homeRepository = homeRepository;
+        this.notificationService = notificationService; // 👇 NUEVO
     }
 
     @Transactional
@@ -33,13 +38,17 @@ public class RoomService {
         room.setColorHex(request.getColorHex());
         room.setHome(home);
 
-        return roomRepository.save(room);
+        Room savedRoom = roomRepository.save(room);
+
+        notificationService.sendSilentSyncToHome(home, "SYNC_ROOMS", request.getUserId());
+
+        return savedRoom;
     }
 
     @Transactional
     public Room updateRoom(String roomId, UpdateRoomRequest request) throws Exception {
         Room room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new Exception("Habitación no encontrada"));
+                .orElseThrow(() -> new RoomNotFoundException(roomId));
 
         if (request.getName() != null) {
             room.setName(request.getName());
@@ -51,6 +60,28 @@ public class RoomService {
             room.setColorHex(request.getColorHex());
         }
 
-        return roomRepository.save(room);
+        Room updatedRoom = roomRepository.save(room);
+
+        if (updatedRoom.getHome() != null) {
+            notificationService.sendSilentSyncToHome(updatedRoom.getHome(), "SYNC_ROOMS", "");
+        }
+
+        return updatedRoom;
     }
+
+    public List<Room> getRoomsByHome(String homeId) {
+        return roomRepository.findByHomeId(homeId);
+    }
+
+    @Transactional
+    public void deleteRoom(String roomId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new RoomNotFoundException(roomId));
+        String homeId = room.getHome().getId();
+        roomRepository.delete(room);
+        homeRepository.findById(homeId).ifPresent(home ->
+                notificationService.sendSilentSyncToHome(home, "SYNC_ROOMS", "")
+        );
+    }
+
 }

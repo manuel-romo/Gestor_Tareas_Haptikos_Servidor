@@ -3,15 +3,130 @@ package com.haptikos.gestor_tareas_haptikos_servidor.dto;
 import java.util.List;
 
 public class CreateTaskRequest {
-    public String id;
-    public String title;
-    public String description;
-    public int points;
-    public String priority;
-    public String suggestedDay;
-    public String recurrence;
-    public String workMode;
-    public int lastMemberIndex;
-    public String roomId; // Solo el ID de la habitación
-    public List<String> memberIds; // Solo los IDs de los miembros
+    private String id;
+    private String title;
+    private String description;
+    private int points;
+    private String priority;
+    private String suggestedDay;
+    private String recurrence;
+    private String workMode;
+    private int lastMemberIndex;
+    private String roomId;
+    private List<String> memberIds;
+    private String homeId;
+    private boolean predetermined;
+    private String userId;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public int getPoints() {
+        return points;
+    }
+
+    public void setPoints(int points) {
+        this.points = points;
+    }
+
+    public String getPriority() {
+        return priority;
+    }
+
+    public void setPriority(String priority) {
+        this.priority = priority;
+    }
+
+    public String getSuggestedDay() {
+        return suggestedDay;
+    }
+
+    public void setSuggestedDay(String suggestedDay) {
+        this.suggestedDay = suggestedDay;
+    }
+
+    public String getRecurrence() {
+        return recurrence;
+    }
+
+    public void setRecurrence(String recurrence) {
+        this.recurrence = recurrence;
+    }
+
+    public String getWorkMode() {
+        return workMode;
+    }
+
+    public void setWorkMode(String workMode) {
+        this.workMode = workMode;
+    }
+
+    public int getLastMemberIndex() {
+        return lastMemberIndex;
+    }
+
+    public void setLastMemberIndex(int lastMemberIndex) {
+        this.lastMemberIndex = lastMemberIndex;
+    }
+
+    public String getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(String roomId) {
+        this.roomId = roomId;
+    }
+
+    public List<String> getMemberIds() {
+        return memberIds;
+    }
+
+    public void setMemberIds(List<String> memberIds) {
+        this.memberIds = memberIds;
+    }
+
+    public String getHomeId() {
+        return homeId;
+    }
+
+    public void setHomeId(String homeId) {
+        this.homeId = homeId;
+    }
+
+    public boolean isPredetermined() {
+        return predetermined;
+    }
+
+    public void setPredetermined(boolean predetermined) {
+        this.predetermined = predetermined;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 }
