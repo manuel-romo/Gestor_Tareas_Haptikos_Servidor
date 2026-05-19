@@ -129,11 +129,12 @@ public class TaskService {
     }
 
     @Transactional
-    public void completeInstance(String instanceId, String userId) {
+    public void completeInstance(String instanceId, String userId, Long completedAt) {
         TaskInstance instance = taskInstanceRepository.findById(instanceId)
                 .orElseThrow(() -> new RuntimeException("Instancia no encontrada"));
 
         instance.setState("COMPLETED");
+        instance.setCompletedAt(completedAt);
         taskInstanceRepository.save(instance);
 
         Task task = instance.getTask();
@@ -176,6 +177,7 @@ public class TaskService {
             dto.setRoomId(task.getRoom() != null ? task.getRoom().getId() : null);
             dto.setHomeId(task.getHomeId());
             dto.setPredetermined(Boolean.TRUE.equals(task.getPredetermined()));
+            dto.setPausedUntil(task.getPausedUntil());
             dto.setMemberIds(task.getMembers().stream()
                     .map(Member::getId)
                     .collect(Collectors.toList()));

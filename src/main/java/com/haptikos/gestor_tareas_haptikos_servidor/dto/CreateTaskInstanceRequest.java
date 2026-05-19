@@ -9,6 +9,7 @@ public class CreateTaskInstanceRequest {
     private String state;
     private List<String> memberIds;
     private String userId;
+    private Long completedAt;
 
     public String getId() {
         return id;
@@ -56,5 +57,13 @@ public class CreateTaskInstanceRequest {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public Long getCompletedAt() {
+        return completedAt;
+    }
+
+    public void setCompletedAt(Long completedAt) {
+        this.completedAt = completedAt;
     }
 }

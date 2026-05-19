@@ -16,6 +16,7 @@ public class TaskNetworkDto {
     private String homeId;
     private boolean isPredetermined;
     private List<String> memberIds;
+    private Long pausedUntil;
     private List<TaskInstanceNetworkDto> instances;
 
     public String getId() { return id; }
@@ -44,6 +45,14 @@ public class TaskNetworkDto {
     public void setPredetermined(boolean predetermined) { isPredetermined = predetermined; }
     public List<String> getMemberIds() { return memberIds; }
     public void setMemberIds(List<String> memberIds) { this.memberIds = memberIds; }
+
+    public Long getPausedUntil() {
+        return pausedUntil;
+    }
+
+    public void setPausedUntil(Long pausedUntil) {
+        this.pausedUntil = pausedUntil;
+    }
 
     public List<TaskInstanceNetworkDto> getInstances() {
         return instances;

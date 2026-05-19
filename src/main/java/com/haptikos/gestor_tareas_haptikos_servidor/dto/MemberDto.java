@@ -9,6 +9,7 @@ public class MemberDto {
     private String colorHex;
     private String role;
     private String status;
+    private String profilePicUrl;
 
     public String getId() {
         return id;
@@ -72,5 +73,13 @@ public class MemberDto {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getProfilePicUrl() {
+        return profilePicUrl;
+    }
+
+    public void setProfilePicUrl(String profilePicUrl) {
+        this.profilePicUrl = profilePicUrl;
     }
 }

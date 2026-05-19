@@ -6,6 +6,7 @@ import com.haptikos.gestor_tareas_haptikos_servidor.model.Home;
 import com.haptikos.gestor_tareas_haptikos_servidor.model.Member;
 import com.haptikos.gestor_tareas_haptikos_servidor.repository.HomeRepository;
 import com.haptikos.gestor_tareas_haptikos_servidor.repository.MemberRepository;
+import com.haptikos.gestor_tareas_haptikos_servidor.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,11 +18,17 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final HomeRepository homeRepository;
     private final NotificationService notificationService;
+    private final UserRepository userRepository;
 
-    public MemberService(MemberRepository memberRepository, HomeRepository homeRepository, NotificationService notificationService) {
+    public MemberService(
+            MemberRepository memberRepository,
+            HomeRepository homeRepository,
+            NotificationService notificationService,
+            UserRepository userRepository) {
         this.memberRepository = memberRepository;
         this.homeRepository = homeRepository;
         this.notificationService = notificationService;
+        this.userRepository = userRepository;
     }
 
     public void createMember(CreateMemberRequest request) {
@@ -61,6 +68,12 @@ public class MemberService {
 
             if (member.getHome() != null) {
                 dto.setHomeId(member.getHome().getId());
+            }
+
+
+            if (member.getUserId() != null) {
+                userRepository.findById(member.getUserId())
+                        .ifPresent(user -> dto.setProfilePicUrl(user.getProfilePicUrl()));
             }
 
             return dto;

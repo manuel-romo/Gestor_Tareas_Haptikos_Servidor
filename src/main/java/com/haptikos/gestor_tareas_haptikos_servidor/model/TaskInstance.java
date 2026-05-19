@@ -13,6 +13,7 @@ public class TaskInstance {
 
     private Long dueDate;
     private String state;
+    private Long completedAt;
 
     @ManyToOne
     @JoinColumn(name = "task_id")
@@ -61,4 +62,12 @@ public class TaskInstance {
     public List<Member> getMembers() { return members; }
 
     public void setMembers(List<Member> members) { this.members = members; }
+
+    public Long getCompletedAt() {
+        return completedAt;
+    }
+
+    public void setCompletedAt(Long completedAt) {
+        this.completedAt = completedAt;
+    }
 }

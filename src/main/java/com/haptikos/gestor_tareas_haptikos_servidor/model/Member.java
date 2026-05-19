@@ -13,6 +13,7 @@ public class Member {
     private String colorHex;
     private String role;
     private String status;
+    private String profilePicUrl;
 
     @ManyToOne
     @JoinColumn(name = "home_id")
@@ -89,4 +90,12 @@ public class Member {
     public boolean isNotifyNewMembers() { return notifyNewMembers; }
 
     public void setNotifyNewMembers(boolean notifyNewMembers) { this.notifyNewMembers = notifyNewMembers; }
+
+    public String getProfilePicUrl() {
+        return profilePicUrl;
+    }
+
+    public void setProfilePicUrl(String profilePicUrl) {
+        this.profilePicUrl = profilePicUrl;
+    }
 }

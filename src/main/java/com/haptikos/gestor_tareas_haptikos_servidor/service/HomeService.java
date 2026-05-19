@@ -287,6 +287,7 @@ public class HomeService {
                         mDto.colorHex = mem.getColorHex();
                         mDto.role = mem.getRole();
                         mDto.status = mem.getStatus();
+                        mDto.profilePicUrl = mem.getProfilePicUrl();
                         return mDto;
                     }).collect(Collectors.toList());
                     return dto;

@@ -2,10 +2,15 @@ package com.haptikos.gestor_tareas_haptikos_servidor.controller;
 
 import com.haptikos.gestor_tareas_haptikos_servidor.dto.HomeSyncDto;
 import com.haptikos.gestor_tareas_haptikos_servidor.dto.UpdateUserRequest;
+import com.haptikos.gestor_tareas_haptikos_servidor.model.Home;
+import com.haptikos.gestor_tareas_haptikos_servidor.model.Member;
 import com.haptikos.gestor_tareas_haptikos_servidor.model.User;
+import com.haptikos.gestor_tareas_haptikos_servidor.repository.HomeRepository;
+import com.haptikos.gestor_tareas_haptikos_servidor.repository.MemberRepository;
 import com.haptikos.gestor_tareas_haptikos_servidor.repository.UserRepository;
 import com.haptikos.gestor_tareas_haptikos_servidor.service.FileService;
 import com.haptikos.gestor_tareas_haptikos_servidor.service.HomeService;
+import com.haptikos.gestor_tareas_haptikos_servidor.service.NotificationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,13 +27,22 @@ import java.util.Optional;
 public class UserController {
 
     private final FileService fileService;
-    private final HomeService homeService;
+    private final MemberRepository memberRepository;
     private final UserRepository userRepository;
+    private final HomeRepository homeRepository;
+    private final NotificationService notificationService;
 
-    public UserController(FileService fileService, UserRepository userRepository, HomeService homeService) {
+    public UserController(
+            FileService fileService,
+            UserRepository userRepository,
+            MemberRepository memberRepository,
+            HomeRepository homeRepository,
+            NotificationService notificationService) {
         this.fileService = fileService;
         this.userRepository = userRepository;
-        this.homeService = homeService;
+        this.memberRepository = memberRepository;
+        this.homeRepository = homeRepository;
+        this.notificationService = notificationService;
     }
 
     @PostMapping("/{userId}/profile-picture")
@@ -51,6 +65,19 @@ public class UserController {
             user.setProfilePicUrl(secureUrl);
             userRepository.save(user);
 
+            memberRepository.findByUserId(userId).forEach(member -> {
+                member.setProfilePicUrl(secureUrl);
+                memberRepository.save(member);
+            });
+
+            List<Member> members = memberRepository.findByUserId(userId);
+            for (Member member : members) {
+                Home home = member.getHome();
+                if (home != null) {
+                    notificationService.sendSilentSyncToHome(home, "SYNC_MEMBERS", "");
+                }
+            }
+
             // Se devuelve la url
             Map<String, String> response = new HashMap<>();
             response.put("profilePicUrl", secureUrl);
@@ -70,11 +97,15 @@ public class UserController {
 
         try {
             Optional<User> userOptional = userRepository.findById(userId);
-            if (userOptional.isEmpty()) {
-                return ResponseEntity.notFound().build();
-            }
+            if (userOptional.isEmpty()) return ResponseEntity.notFound().build();
 
             User user = userOptional.get();
+
+            boolean nameChanged = false;
+            if (request.getName() != null && !request.getName().trim().isEmpty()) {
+                user.setName(request.getName());
+                nameChanged = true;
+            }
 
             // Actualización condicional
             if (request.getName() != null && !request.getName().trim().isEmpty()) {
@@ -91,6 +122,19 @@ public class UserController {
             }
 
             userRepository.save(user);
+
+            if (nameChanged) {
+                List<Member> members = memberRepository.findByUserId(userId);
+                for (Member member : members) {
+                    member.setName(request.getName());
+                    memberRepository.save(member);
+
+                    Home home = member.getHome();
+                    if (home != null) {
+                        notificationService.sendSilentSyncToHome(home, "SYNC_MEMBERS", "");
+                    }
+                }
+            }
 
             Map<String, String> response = new HashMap<>();
             response.put("message", "Usuario actualizado correctamente");

@@ -46,12 +46,12 @@ public class TaskController {
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/instances/{instanceId}/complete")
+    @PatchMapping("/{instanceId}/complete")
     public ResponseEntity<Void> completeInstance(
             @PathVariable String instanceId,
-            @RequestParam String userId
-    ) {
-        taskService.completeInstance(instanceId, userId);
+            @RequestParam String userId,
+            @RequestParam(required = false) Long completedAt) {
+        taskService.completeInstance(instanceId, userId, completedAt);
         return ResponseEntity.ok().build();
     }
 

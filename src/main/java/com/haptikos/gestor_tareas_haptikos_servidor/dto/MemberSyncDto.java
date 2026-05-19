@@ -8,4 +8,5 @@ public class MemberSyncDto {
     public String colorHex;
     public String role;
     public String status;
+    public String profilePicUrl;
 }

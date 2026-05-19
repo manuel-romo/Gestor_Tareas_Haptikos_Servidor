@@ -8,6 +8,7 @@ public class TaskInstanceNetworkDto {
     private Long dueDate;
     private String state;
     private List<String> memberIds;
+    private Long completedAt;
 
     public String getId() {
         return id;
@@ -47,5 +48,13 @@ public class TaskInstanceNetworkDto {
 
     public void setMemberIds(List<String> memberIds) {
         this.memberIds = memberIds;
+    }
+
+    public Long getCompletedAt() {
+        return completedAt;
+    }
+
+    public void setCompletedAt(Long completedAt) {
+        this.completedAt = completedAt;
     }
 }
