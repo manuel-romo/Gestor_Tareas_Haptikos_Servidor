@@ -2,6 +2,7 @@ package com.haptikos.gestor_tareas_haptikos_servidor.controller;
 
 import com.haptikos.gestor_tareas_haptikos_servidor.dto.CreateMemberRequest;
 import com.haptikos.gestor_tareas_haptikos_servidor.dto.MemberDto;
+import com.haptikos.gestor_tareas_haptikos_servidor.dto.UpdateRoleRequest;
 import com.haptikos.gestor_tareas_haptikos_servidor.service.MemberService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -45,4 +46,18 @@ public class MemberController {
                     .body(Map.of("error", "Error al obtener miembros: " + e.getMessage()));
         }
     }
+
+    @PatchMapping("/{memberId}/role")
+    public ResponseEntity<?> updateMemberRole(
+            @PathVariable String memberId,
+            @RequestBody UpdateRoleRequest request) {
+        try {
+            memberService.updateMemberRole(memberId, request);
+            return ResponseEntity.ok(Map.of("message", "Rol actualizado con éxito"));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("error", "Error al actualizar rol: " + e.getMessage()));
+        }
+    }
+
 }

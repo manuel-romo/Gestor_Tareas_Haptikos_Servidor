@@ -2,6 +2,8 @@ package com.haptikos.gestor_tareas_haptikos_servidor.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -19,6 +21,8 @@ public class User {
     private boolean notifyTaskCompleted = true;
     private boolean notifyNewMembers = true;
     private String fcmToken;
+    private String resetToken;
+    private LocalDateTime resetTokenExpiry;
 
     // Getters y Setters
     public String getId() { return id; }
@@ -57,4 +61,20 @@ public class User {
     public String getFcmToken() { return fcmToken; }
 
     public void setFcmToken(String fcmToken) { this.fcmToken = fcmToken; }
+
+    public String getResetToken() {
+        return resetToken;
+    }
+
+    public void setResetToken(String resetToken) {
+        this.resetToken = resetToken;
+    }
+
+    public LocalDateTime getResetTokenExpiry() {
+        return resetTokenExpiry;
+    }
+
+    public void setResetTokenExpiry(LocalDateTime resetTokenExpiry) {
+        this.resetTokenExpiry = resetTokenExpiry;
+    }
 }

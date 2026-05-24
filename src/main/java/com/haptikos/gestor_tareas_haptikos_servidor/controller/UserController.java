@@ -106,11 +106,6 @@ public class UserController {
                 user.setName(request.getName());
                 nameChanged = true;
             }
-
-            // Actualización condicional
-            if (request.getName() != null && !request.getName().trim().isEmpty()) {
-                user.setName(request.getName());
-            }
             if (request.getNotifyTaskReminders() != null) {
                 user.setNotifyTaskReminders(request.getNotifyTaskReminders());
             }
@@ -122,6 +117,24 @@ public class UserController {
             }
 
             userRepository.save(user);
+
+            if (request.getHomeId() != null && (
+                    request.getNotifyTaskReminders() != null ||
+                            request.getNotifyTaskCompleted() != null ||
+                            request.getNotifyNewMembers() != null)) {
+
+                memberRepository.findByUserIdAndHomeId(userId, request.getHomeId())
+                        .ifPresent(member -> {
+                            if (request.getNotifyTaskReminders() != null)
+                                member.setNotifyTaskReminders(request.getNotifyTaskReminders());
+                            if (request.getNotifyTaskCompleted() != null)
+                                member.setNotifyTaskCompleted(request.getNotifyTaskCompleted());
+                            if (request.getNotifyNewMembers() != null)
+                                member.setNotifyNewMembers(request.getNotifyNewMembers());
+                            memberRepository.save(member);
+                        });
+            }
+
 
             if (nameChanged) {
                 List<Member> members = memberRepository.findByUserId(userId);

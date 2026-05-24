@@ -190,6 +190,7 @@ public class TaskService {
                         iDto.setId(inst.getId());
                         iDto.setDueDate(inst.getDueDate());
                         iDto.setState(inst.getState());
+                        iDto.setCompletedAt(inst.getCompletedAt());
                         iDto.setTaskId(task.getId());
                         iDto.setMemberIds(inst.getMembers().stream()
                                 .map(Member::getId)

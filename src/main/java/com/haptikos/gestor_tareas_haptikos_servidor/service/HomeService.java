@@ -297,7 +297,6 @@ public class HomeService {
 
     @Transactional
     public void leaveHome(String homeId, String userId) {
-        // Se busca el hogar para obtener a los demás miembros
         Home home = homeRepository.findById(homeId)
                 .orElseThrow(() -> new RuntimeException("Hogar no encontrado"));
 
@@ -308,7 +307,7 @@ public class HomeService {
             throw new RuntimeException("El creador no puede abandonar el hogar directamente.");
         }
 
-        memberRepository.delete(member);
+        memberRepository.deleteByHomeIdAndUserId(homeId, userId);
 
         notificationService.sendSilentSyncToHome(home, "SYNC_MEMBERS", userId);
     }

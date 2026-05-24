@@ -6,6 +6,7 @@ import com.google.firebase.FirebaseOptions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -21,12 +22,10 @@ public class FirebaseConfig {
     @Bean
     public FirebaseApp firebaseApp() throws IOException {
         if (FirebaseApp.getApps().isEmpty()) {
-            ByteArrayInputStream serviceAccount = new ByteArrayInputStream(
-                    firebaseKey.getBytes(StandardCharsets.UTF_8)
-            );
+            ClassPathResource resource = new ClassPathResource(firebaseKey);
 
             FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .setCredentials(GoogleCredentials.fromStream(resource.getInputStream()))
                     .build();
 
             return FirebaseApp.initializeApp(options);
