@@ -35,7 +35,7 @@ public class HomeInviteController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
-            error.put("error", "No se pudo enviar el correo");
+            error.put("error", "No se pudo enviar el correo: " + e.getMessage());
             return ResponseEntity.status(500).body(error);
         }
     }
