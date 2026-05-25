@@ -165,6 +165,15 @@ public class UserController {
             @PathVariable String userId,
             @RequestBody Map<String, String> body) {
         String token = body.get("fcmToken");
+
+        // Se limpia el token de cualquier otro usuario que lo tenga
+        userRepository.findByFcmToken(token).ifPresent(existingUser -> {
+            if (!existingUser.getId().equals(userId)) {
+                existingUser.setFcmToken(null);
+                userRepository.save(existingUser);
+            }
+        });
+
         userRepository.findById(userId).ifPresent(user -> {
             user.setFcmToken(token);
             userRepository.save(user);

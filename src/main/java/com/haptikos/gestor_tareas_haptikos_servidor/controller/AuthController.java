@@ -44,8 +44,9 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
+        System.out.println("[REGISTER] id=" + user.getId() + " name=" + user.getName() + " email=" + user.getEmail() + " gender=" + user.getGender() + " dob=" + user.getDob());
         if (userRepository.existsByEmail(user.getEmail())) {
-            return ResponseEntity.badRequest().body(Map.of("error", "El correo ya está registrado"));
+            return ResponseEntity.status(409).body(Map.of("error", "El correo ya está registrado"));
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         String token = jwtService.generateToken(user.getEmail());

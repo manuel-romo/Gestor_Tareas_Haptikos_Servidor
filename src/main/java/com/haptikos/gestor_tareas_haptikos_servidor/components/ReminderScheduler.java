@@ -9,6 +9,7 @@ import com.haptikos.gestor_tareas_haptikos_servidor.repository.TaskInstanceRepos
 import com.haptikos.gestor_tareas_haptikos_servidor.service.NotificationService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -28,6 +29,7 @@ public class ReminderScheduler {
     }
 
     // Cada hora
+    @Transactional
     @Scheduled(fixedRate = 3600000)
     public void sendReminders() {
         long now = System.currentTimeMillis();
