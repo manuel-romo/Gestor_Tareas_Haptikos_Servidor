@@ -27,9 +27,8 @@ public class SecurityConfig {
                 // Desactivación de CSRF
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // Login y registro no necesitan token
                         .requestMatchers("/api/auth/**").permitAll()
-                        // Otras rutas
+                        .requestMatchers("/health").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
