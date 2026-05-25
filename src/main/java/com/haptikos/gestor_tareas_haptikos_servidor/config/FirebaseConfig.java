@@ -23,7 +23,14 @@ public class FirebaseConfig {
     @Bean
     public FirebaseApp firebaseApp() throws IOException {
         if (FirebaseApp.getApps().isEmpty()) {
-            InputStream stream = new ByteArrayInputStream(firebaseKey.getBytes(StandardCharsets.UTF_8));
+
+            InputStream stream;
+
+            if (firebaseKey.trim().startsWith("{")) {
+                stream = new ByteArrayInputStream(firebaseKey.getBytes(StandardCharsets.UTF_8));
+            } else {
+                stream = new ClassPathResource(firebaseKey).getInputStream();
+            }
 
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(stream))
