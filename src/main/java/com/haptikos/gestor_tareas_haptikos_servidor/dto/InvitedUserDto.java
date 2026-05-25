@@ -4,6 +4,7 @@ public class InvitedUserDto {
     private String id;
     private String title;
     private String subtitle;
+    private String userId;
 
     public String getTitle() {
         return title;
@@ -28,4 +29,9 @@ public class InvitedUserDto {
     public void setSubtitle(String subtitle) {
         this.subtitle = subtitle;
     }
+
+    public String getUserId() { return userId; }
+
+    public void setUserId(String userId) { this.userId = userId; }
+
 }

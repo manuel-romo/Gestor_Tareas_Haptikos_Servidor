@@ -73,6 +73,9 @@ public class HomeService {
         // Creación de miembros invitados
         if (request.getInvitedUsers() != null) {
             for (InvitedUserDto invite : request.getInvitedUsers()) {
+                if (invite.getUserId() != null && !invite.getUserId().isEmpty()) {
+                    continue;
+                }
                 Member invited = new Member();
                 invited.setId(invite.getId());
                 invited.setName(invite.getTitle());
@@ -245,6 +248,8 @@ public class HomeService {
         System.out.println("[JOIN] Miembro guardado userId=" + userId + " miembros ahora: " + home.getMembers().size());
         System.out.println("[JOIN] Llamando notifyHomeMembers, excluyendo userId=" + userId);
 
+        notificationService.sendSilentSyncToUser(userId, "SYNC_HOME", home.getId());
+
         notificationService.notifyHomeMembers(
                 home,
                 "Nuevo miembro",
@@ -252,6 +257,7 @@ public class HomeService {
                 "NEW_MEMBER",
                 userId
         );
+
 
         System.out.println("[JOIN] notifyHomeMembers completado");
 
