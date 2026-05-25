@@ -106,11 +106,6 @@ public class UserController {
                 user.setName(request.getName());
                 nameChanged = true;
             }
-
-            // Actualización condicional
-            if (request.getName() != null && !request.getName().trim().isEmpty()) {
-                user.setName(request.getName());
-            }
             if (request.getNotifyTaskReminders() != null) {
                 user.setNotifyTaskReminders(request.getNotifyTaskReminders());
             }
@@ -122,6 +117,24 @@ public class UserController {
             }
 
             userRepository.save(user);
+
+            if (request.getHomeId() != null && (
+                    request.getNotifyTaskReminders() != null ||
+                            request.getNotifyTaskCompleted() != null ||
+                            request.getNotifyNewMembers() != null)) {
+
+                memberRepository.findByUserIdAndHomeId(userId, request.getHomeId())
+                        .ifPresent(member -> {
+                            if (request.getNotifyTaskReminders() != null)
+                                member.setNotifyTaskReminders(request.getNotifyTaskReminders());
+                            if (request.getNotifyTaskCompleted() != null)
+                                member.setNotifyTaskCompleted(request.getNotifyTaskCompleted());
+                            if (request.getNotifyNewMembers() != null)
+                                member.setNotifyNewMembers(request.getNotifyNewMembers());
+                            memberRepository.save(member);
+                        });
+            }
+
 
             if (nameChanged) {
                 List<Member> members = memberRepository.findByUserId(userId);
@@ -152,6 +165,15 @@ public class UserController {
             @PathVariable String userId,
             @RequestBody Map<String, String> body) {
         String token = body.get("fcmToken");
+
+        // Se limpia el token de cualquier otro usuario que lo tenga
+        userRepository.findByFcmToken(token).ifPresent(existingUser -> {
+            if (!existingUser.getId().equals(userId)) {
+                existingUser.setFcmToken(null);
+                userRepository.save(existingUser);
+            }
+        });
+
         userRepository.findById(userId).ifPresent(user -> {
             user.setFcmToken(token);
             userRepository.save(user);

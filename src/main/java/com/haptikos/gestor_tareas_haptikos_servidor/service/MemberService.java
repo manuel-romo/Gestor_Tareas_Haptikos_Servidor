@@ -2,6 +2,7 @@ package com.haptikos.gestor_tareas_haptikos_servidor.service;
 
 import com.haptikos.gestor_tareas_haptikos_servidor.dto.CreateMemberRequest;
 import com.haptikos.gestor_tareas_haptikos_servidor.dto.MemberDto;
+import com.haptikos.gestor_tareas_haptikos_servidor.dto.UpdateRoleRequest;
 import com.haptikos.gestor_tareas_haptikos_servidor.model.Home;
 import com.haptikos.gestor_tareas_haptikos_servidor.model.Member;
 import com.haptikos.gestor_tareas_haptikos_servidor.repository.HomeRepository;
@@ -79,4 +80,17 @@ public class MemberService {
             return dto;
         }).collect(Collectors.toList());
     }
+
+    public void updateMemberRole(String memberId, UpdateRoleRequest request) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("Miembro no encontrado"));
+
+        member.setRole(request.getRole());
+        memberRepository.save(member);
+
+        // Notificar silenciosamente a los demás miembros del hogar
+        String actorId = request.getActorUserId() != null ? request.getActorUserId() : "";
+        notificationService.sendSilentSyncToHome(member.getHome(), "SYNC_MEMBERS", actorId);
+    }
+
 }

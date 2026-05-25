@@ -5,6 +5,7 @@ public class UpdateUserRequest {
     private Boolean notifyTaskReminders;
     private Boolean notifyTaskCompleted;
     private Boolean notifyNewMembers;
+    private String homeId;
 
     // Genera todos los Getters y Setters
     public String getName() { return name; }
@@ -18,4 +19,12 @@ public class UpdateUserRequest {
 
     public Boolean getNotifyNewMembers() { return notifyNewMembers; }
     public void setNotifyNewMembers(Boolean notifyNewMembers) { this.notifyNewMembers = notifyNewMembers; }
+
+    public String getHomeId() {
+        return homeId;
+    }
+
+    public void setHomeId(String homeId) {
+        this.homeId = homeId;
+    }
 }

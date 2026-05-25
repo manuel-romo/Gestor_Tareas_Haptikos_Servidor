@@ -171,4 +171,21 @@ public class NotificationService {
         }
     }
 
+    public void sendSilentSyncToUser(String userId, String type, String homeId) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null || user.getFcmToken() == null) return;
+
+        Message message = Message.builder()
+                .setToken(user.getFcmToken())
+                .putData("type", type)
+                .putData("homeId", homeId)
+                .build();
+
+        try {
+            FirebaseMessaging.getInstance().send(message);
+        } catch (FirebaseMessagingException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

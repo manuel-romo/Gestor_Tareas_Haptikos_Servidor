@@ -30,7 +30,12 @@ public class Task {
     @JoinTable(
             name = "task_member_join",
             joinColumns = @JoinColumn(name = "task_id"),
-            inverseJoinColumns = @JoinColumn(name = "member_id")
+            inverseJoinColumns = @JoinColumn(
+                    name = "member_id",
+                    foreignKey = @ForeignKey(
+                            foreignKeyDefinition = "FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE"
+                    )
+            )
     )
     private List<Member> members = new ArrayList<>();
 

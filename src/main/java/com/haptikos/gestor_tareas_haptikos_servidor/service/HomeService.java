@@ -73,6 +73,9 @@ public class HomeService {
         // Creación de miembros invitados
         if (request.getInvitedUsers() != null) {
             for (InvitedUserDto invite : request.getInvitedUsers()) {
+                if (invite.getUserId() != null && !invite.getUserId().isEmpty()) {
+                    continue;
+                }
                 Member invited = new Member();
                 invited.setId(invite.getId());
                 invited.setName(invite.getTitle());
@@ -245,6 +248,8 @@ public class HomeService {
         System.out.println("[JOIN] Miembro guardado userId=" + userId + " miembros ahora: " + home.getMembers().size());
         System.out.println("[JOIN] Llamando notifyHomeMembers, excluyendo userId=" + userId);
 
+        notificationService.sendSilentSyncToUser(userId, "SYNC_HOME", home.getId());
+
         notificationService.notifyHomeMembers(
                 home,
                 "Nuevo miembro",
@@ -252,6 +257,7 @@ public class HomeService {
                 "NEW_MEMBER",
                 userId
         );
+
 
         System.out.println("[JOIN] notifyHomeMembers completado");
 
@@ -297,7 +303,6 @@ public class HomeService {
 
     @Transactional
     public void leaveHome(String homeId, String userId) {
-        // Se busca el hogar para obtener a los demás miembros
         Home home = homeRepository.findById(homeId)
                 .orElseThrow(() -> new RuntimeException("Hogar no encontrado"));
 
@@ -308,7 +313,7 @@ public class HomeService {
             throw new RuntimeException("El creador no puede abandonar el hogar directamente.");
         }
 
-        memberRepository.delete(member);
+        memberRepository.deleteByHomeIdAndUserId(homeId, userId);
 
         notificationService.sendSilentSyncToHome(home, "SYNC_MEMBERS", userId);
     }
